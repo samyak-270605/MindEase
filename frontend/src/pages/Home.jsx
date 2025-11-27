@@ -18,8 +18,17 @@ const Home = () => {
   const aboutRef = useRef(null);
   const contactRef = useRef(null);
   const [backgroundColor, setBackgroundColor] = useState("from-purple-50 via-pink-50 to-amber-50");
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+
+  // Words for the flipping text animation
+  const flipWords = ["Anxiety", "Depression", "Burnout", "Academic Stress"];
 
   useEffect(() => {
+    // Word flipping animation
+    const wordInterval = setInterval(() => {
+      setCurrentWordIndex((prev) => (prev + 1) % flipWords.length);
+    }, 3000);
+
     const tl = gsap.timeline();
 
     // Initial animations for page elements
@@ -149,6 +158,7 @@ const Home = () => {
 
     return () => {
       // Clean up animations
+      clearInterval(wordInterval);
       tl.kill();
       ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
@@ -212,14 +222,69 @@ const Home = () => {
       <div className="absolute top-1/2 left-10 w-12 h-12 rounded-full bg-green-300/40" ref={el => shapesRef.current[4] = el}></div>
       <div className="absolute bottom-1/2 right-10 w-10 h-10 rounded-full bg-red-300/40" ref={el => shapesRef.current[5] = el}></div>
       
+      {/* Wavy background effect */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden z-0 opacity-20">
+        <svg className="absolute w-full h-full" viewBox="0 0 1440 900" preserveAspectRatio="none">
+          <path 
+            d="M0,160L48,176C96,192,192,224,288,218.7C384,213,480,171,576,165.3C672,160,768,192,864,192C960,192,1056,160,1152,144C1248,128,1344,128,1392,128L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" 
+            className="fill-purple-300 animate-softWave"
+          ></path>
+          <path 
+            d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,117.3C672,107,768,117,864,122.7C960,128,1056,128,1152,138.7C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" 
+            className="fill-pink-300 animate-softWave animation-delay-1000"
+          ></path>
+          <path 
+            d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,197.3C672,192,768,160,864,154.7C960,149,1056,171,1152,170.7C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" 
+            className="fill-blue-300 animate-softWave animation-delay-2000"
+          ></path>
+        </svg>
+      </div>
+
+      {/* Background lines effect */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden z-0 opacity-30">
+        <svg viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+          {Array.from({ length: 20 }).map((_, idx) => (
+            <path
+              key={idx}
+              d={`M0,${100 + idx * 40} L1440,${100 + (idx * 40) + (idx % 2 === 0 ? 20 : -20)}`}
+              stroke={idx % 3 === 0 ? "#8C2F2F" : idx % 3 === 1 ? "#46A5CA" : "#4FAE4D"}
+              strokeWidth="1"
+              strokeLinecap="round"
+              className="animate-drawLine"
+              style={{
+                animationDelay: `${idx * 0.2}s`,
+                animationDuration: "20s"
+              }}
+            />
+          ))}
+        </svg>
+      </div>
+
       {/* Hero section */}
       <div className="color-change-section text-center relative z-10 px-4 mb-16 mt-20">
         <h1 ref={titleRef} className="text-6xl md:text-7xl font-bold text-purple-800 mb-6">
           Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600">MindEase</span>
         </h1>
-        <p ref={subtitleRef} className="text-xl md:text-2xl text-purple-600/90 mb-10 max-w-3xl mx-auto leading-relaxed">
-          Your mental health support platform designed to help college students navigate anxiety, depression, burnout, and academic stress.
+        <p ref={subtitleRef} className="text-xl md:text-2xl text-purple-600/90 mb-6 max-w-3xl mx-auto leading-relaxed">
+          Your mental health support platform designed to help college students navigate
         </p>
+        
+        {/* Text flipping animation */}
+        <div className="relative h-16 mb-10 overflow-hidden flex justify-center">
+          {flipWords.map((word, index) => (
+            <div
+              key={word}
+              className={`absolute text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 text-transparent bg-clip-text transition-all duration-500 ${
+                index === currentWordIndex
+                  ? "opacity-100 transform translate-y-0"
+                  : "opacity-0 transform -translate-y-8"
+              }`}
+              style={{ transitionTimingFunction: "cubic-bezier(0.68, -0.55, 0.27, 1.55)" }}
+            >
+              {word}
+            </div>
+          ))}
+        </div>
 
         <div ref={buttonsRef} className="space-y-4 sm:space-y-0 mb-20">
           <Link
@@ -368,7 +433,7 @@ const Home = () => {
                   <div className="flex items-start">
                     <div className="bg-purple-100 p-3 rounded-full mr-4">
                       <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                       </svg>
                     </div>
                     <div>
@@ -439,10 +504,50 @@ const Home = () => {
           </div>
           
           <div className="border-t border-purple-700 mt-8 pt-8 text-center text-purple-300">
-            <p>©️ 2023 MindEase. All rights reserved.</p>
+            <p>© 2023 MindEase. All rights reserved.</p>
           </div>
         </div>
       </footer>
+
+      {/* Add custom CSS for animations */}
+      <style jsx>{`
+        @keyframes softWave {
+          0%, 100% {
+            transform: translateY(0) scale(1);
+          }
+          50% {
+            transform: translateY(-20px) scale(1.05);
+          }
+        }
+        
+        @keyframes drawLine {
+          from {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+          }
+          to {
+            stroke-dashoffset: 0;
+          }
+        }
+        
+        .animate-softWave {
+          animation: softWave 8s ease-in-out infinite;
+        }
+        
+        .animation-delay-1000 {
+          animation-delay: 1s;
+        }
+        
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        
+        .animate-drawLine {
+          stroke-dasharray: 1000;
+          stroke-dashoffset: 1000;
+          animation: drawLine 20s linear infinite;
+        }
+      `}</style>
     </div>
   );
 };
